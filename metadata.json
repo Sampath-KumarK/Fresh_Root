@@ -1,0 +1,6 @@
+{
+  "name": "Freshroots - Farm to Home Marketplace",
+  "description": "Connecting local farmers directly with conscious consumers for farm-fresh produce, vegetables, fruits, and organic harvests.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
