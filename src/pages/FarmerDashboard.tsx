@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { api, getApiErrorMessage } from '../config/api';
+import { api, getApiErrorMessage, API_BASE_URL } from '../config/api';
 import { Product, FarmerOrderItem, Category } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
-import { formatCurrency, getCategoryEmoji, getStatusBadgeClass } from '../utils/helpers';
+import { formatCurrency, getCategoryEmoji, getStatusBadgeClass, getCategoryPlaceholderImage } from '../utils/helpers';
 import {
   Tractor,
   Package,
@@ -22,6 +22,63 @@ import {
   AlertTriangle,
   AlertCircle
 } from 'lucide-react';
+
+const TAMIL_NADU_HARVEST_PRESETS = [
+  {
+    name: 'Cluster Beans',
+    description: 'Tender, freshly picked kothavarangai from Tamil Nadu farms.',
+    price: '55',
+    unit: 'kg',
+    stock: '25',
+    categoryId: '1',
+    imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=900&q=85',
+  },
+  {
+    name: 'Chow Chow',
+    description: 'Crisp chayote grown in the cool hills of Tamil Nadu.',
+    price: '45',
+    unit: 'kg',
+    stock: '30',
+    categoryId: '1',
+    imageUrl: 'https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?auto=format&fit=crop&w=900&q=85',
+  },
+  {
+    name: 'Nendran Banana',
+    description: 'Traditional Kerala-Tamil Nadu borderland Nendran bananas.',
+    price: '65',
+    unit: 'dozen',
+    stock: '18',
+    categoryId: '2',
+    imageUrl: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=900&q=85',
+  },
+  {
+    name: 'Sapota (Chikoo)',
+    description: 'Naturally sweet, tree-ripened sapota from local orchards.',
+    price: '75',
+    unit: 'kg',
+    stock: '20',
+    categoryId: '2',
+    imageUrl: 'https://images.unsplash.com/photo-1605027990121-cbae9e0642df?auto=format&fit=crop&w=900&q=85',
+  },
+  {
+    name: 'Country Tomato',
+    description: 'Aromatic naatu thakkali, picked at peak freshness.',
+    price: '38',
+    unit: 'kg',
+    stock: '40',
+    categoryId: '1',
+    imageUrl: 'https://images.unsplash.com/photo-1546094096-0df4bcaaa337?auto=format&fit=crop&w=900&q=85',
+  },
+  {
+    name: 'Drumstick Leaves',
+    description: 'Nutrient-rich murungai keerai harvested the same morning.',
+    price: '20',
+    unit: 'bunch',
+    stock: '35',
+    categoryId: '3',
+    imageUrl: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=900&q=85',
+  },
+] as const;
 
 export const FarmerDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -142,6 +199,20 @@ export const FarmerDashboard: React.FC = () => {
     });
     setFormError(null);
     setModalOpen(true);
+  };
+
+  const handleChoosePreset = (preset: (typeof TAMIL_NADU_HARVEST_PRESETS)[number]) => {
+    setEditingProduct(null);
+    setProductForm({
+      name: preset.name,
+      description: preset.description,
+      price: preset.price,
+      unit: preset.unit,
+      stock: preset.stock,
+      imageUrl: preset.imageUrl,
+      categoryId: preset.categoryId,
+    });
+    setFormError(null);
   };
 
   // Save product (Add or Edit)
@@ -429,18 +500,14 @@ export const FarmerDashboard: React.FC = () => {
                           <td className="py-3.5 px-4">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-lg bg-stone-100 border border-stone-200 overflow-hidden flex items-center justify-center shrink-0">
-                                {p.imageUrl ? (
-                                  <img
-                                    src={p.imageUrl}
-                                    alt={p.name}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      (e.currentTarget as HTMLElement).style.display = 'none';
-                                    }}
-                                  />
-                                ) : (
-                                  <span className="text-xl">{emoji}</span>
-                                )}
+                                <img
+                                  src={`${API_BASE_URL}/products/${p.id}/image`}
+                                  alt={p.name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.currentTarget as HTMLImageElement).src = getCategoryPlaceholderImage(p.categoryName, p.categoryId);
+                                  }}
+                                />
                               </div>
                               <div>
                                 <p className="font-bold text-stone-900">{p.name}</p>
@@ -640,6 +707,35 @@ export const FarmerDashboard: React.FC = () => {
             )}
 
             <form onSubmit={handleSaveProduct} className="space-y-4 mt-4">
+              {!editingProduct && (
+                <div className="rounded-2xl border border-[#C8E6C9] bg-[#F1F8F2] p-3">
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <div>
+                      <p className="text-xs font-extrabold text-[#1B5E20]">Tamil Nadu harvest picks</p>
+                      <p className="text-[11px] text-stone-500 mt-0.5">Choose a real produce photo, then confirm your farm&apos;s price and stock.</p>
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-[#2E7D32] whitespace-nowrap">Farmer only</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {TAMIL_NADU_HARVEST_PRESETS.map((preset) => (
+                      <button
+                        key={preset.name}
+                        type="button"
+                        onClick={() => handleChoosePreset(preset)}
+                        className={`overflow-hidden rounded-xl border text-left transition-all cursor-pointer ${
+                          productForm.name === preset.name
+                            ? 'border-[#2E7D32] ring-2 ring-[#2E7D32]/20 bg-white'
+                            : 'border-stone-200 bg-white hover:border-[#81C784]'
+                        }`}
+                      >
+                        <img src={preset.imageUrl} alt={preset.name} className="h-16 w-full object-cover" />
+                        <span className="block truncate px-2 py-1.5 text-[11px] font-bold text-stone-700">{preset.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label className="block text-xs font-bold text-stone-700 mb-1">
                   Produce Name *

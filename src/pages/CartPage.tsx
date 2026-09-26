@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { API_BASE_URL } from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import { api, getApiErrorMessage } from '../config/api';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
-import { formatCurrency, getCategoryEmoji } from '../utils/helpers';
+import { formatCurrency, getCategoryEmoji, getCategoryPlaceholderImage } from '../utils/helpers';
 import {
   ShoppingBag,
   Trash2,
@@ -145,18 +146,14 @@ export const CartPage: React.FC = () => {
                       >
                         <div className="flex items-center gap-4">
                           <div className="w-16 h-16 rounded-xl bg-stone-100 border border-stone-200 overflow-hidden flex items-center justify-center shrink-0">
-                            {product.imageUrl ? (
-                              <img
-                                src={product.imageUrl}
-                                alt={product.name}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  (e.currentTarget as HTMLElement).style.display = 'none';
-                                }}
-                              />
-                            ) : (
-                              <span className="text-2xl">{emoji}</span>
-                            )}
+                            <img
+                              src={`${API_BASE_URL}/products/${product.id}/image`}
+                              alt={product.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLImageElement).src = getCategoryPlaceholderImage(product.categoryName, product.categoryId);
+                              }}
+                            />
                           </div>
 
                           <div>

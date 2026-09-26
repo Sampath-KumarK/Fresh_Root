@@ -20,7 +20,6 @@ public class PublicController {
         return ResponseEntity.ok(categoryRepository.findAll().stream()
                 .map(c -> new CategoryDTO(c.getId(), c.getName())).collect(Collectors.toList()));
     }
-
     @GetMapping("/products")
     public ResponseEntity<List<ProductDTO>> getProducts(
             @RequestParam(required = false) Long categoryId,
@@ -33,6 +32,17 @@ public class PublicController {
     public ResponseEntity<ProductDTO> getProduct(@PathVariable Long id) {
         Product p = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
         return ResponseEntity.ok(mapToDTO(p));
+    }
+
+    @GetMapping("/products/{id}/image")
+    public ResponseEntity<byte[]> getProductImage(@PathVariable Long id) {
+        Product p = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+        if (p.getImageBytes() == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_TYPE, p.getImageType() != null ? p.getImageType() : org.springframework.http.MediaType.IMAGE_JPEG_VALUE)
+                .body(p.getImageBytes());
     }
 
     private ProductDTO mapToDTO(Product p) {

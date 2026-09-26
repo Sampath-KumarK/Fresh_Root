@@ -29,6 +29,13 @@ public class FarmerController {
         p.setUnit(req.getUnit()); p.setStock(req.getStock()); p.setImageUrl(req.getImageUrl());
         p.setCategory(categoryRepository.findById(req.getCategoryId()).orElse(null));
         p.setFarmer(userRepository.findById(user.getId()).orElse(null));
+        
+        byte[] bytes = downloadImage(req.getImageUrl());
+        if (bytes != null) {
+            p.setImageBytes(bytes);
+            p.setImageType("image/jpeg");
+        }
+
         productRepository.save(p);
         return ResponseEntity.ok(new MessageResponse("Product added successfully"));
     }
@@ -40,6 +47,16 @@ public class FarmerController {
         p.setName(req.getName()); p.setDescription(req.getDescription()); p.setPrice(req.getPrice());
         p.setUnit(req.getUnit()); p.setStock(req.getStock()); p.setImageUrl(req.getImageUrl());
         p.setCategory(categoryRepository.findById(req.getCategoryId()).orElse(null));
+        
+        boolean urlChanged = req.getImageUrl() != null && !req.getImageUrl().equals(p.getImageUrl());
+        if (urlChanged || p.getImageBytes() == null) {
+            byte[] bytes = downloadImage(req.getImageUrl());
+            if (bytes != null) {
+                p.setImageBytes(bytes);
+                p.setImageType("image/jpeg");
+            }
+        }
+
         productRepository.save(p);
         return ResponseEntity.ok(new MessageResponse("Product updated successfully"));
     }
@@ -85,5 +102,24 @@ public class FarmerController {
         if (p.getCategory() != null) { dto.setCategoryId(p.getCategory().getId()); dto.setCategoryName(p.getCategory().getName()); }
         if (p.getFarmer() != null) { dto.setFarmerId(p.getFarmer().getId()); dto.setFarmerName(p.getFarmer().getName()); dto.setFarmerLocation(p.getFarmer().getLocation()); }
         return dto;
+    }
+
+    private byte[] downloadImage(String urlString) {
+        try {
+            if (urlString == null || urlString.isEmpty()) return null;
+            java.net.URL url = new java.net.URL(urlString);
+            try (java.io.InputStream is = url.openStream();
+                 java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream()) {
+                byte[] b = new byte[2048];
+                int length;
+                while ((length = is.read(b)) != -1) {
+                    baos.write(b, 0, length);
+                }
+                return baos.toByteArray();
+            }
+        } catch (Exception e) {
+            System.err.println("Could not download image: " + urlString);
+            return null;
+        }
     }
 }

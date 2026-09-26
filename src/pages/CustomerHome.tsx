@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { api, getApiErrorMessage } from '../config/api';
+import { api, getApiErrorMessage, API_BASE_URL } from '../config/api';
 import { Product, Category } from '../types';
 import { useCart } from '../context/CartContext';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
-import { getCategoryEmoji, formatCurrency } from '../utils/helpers';
+import { getCategoryEmoji, formatCurrency, getCategoryPlaceholderImage } from '../utils/helpers';
 import {
   Plus,
   Minus,
@@ -15,7 +15,8 @@ import {
   AlertCircle,
   Sparkles,
   ShoppingBag,
-  Leaf
+  Leaf,
+  Camera
 } from 'lucide-react';
 
 const DEFAULT_CATEGORIES: Category[] = [
@@ -278,23 +279,21 @@ export const CustomerHome: React.FC = () => {
                     {/* Top: Image / Photo */}
                     <div>
                       <div className="relative h-48 w-full bg-stone-100 overflow-hidden flex items-center justify-center">
-                        {product.imageUrl ? (
-                          <img
-                            src={product.imageUrl}
-                            alt={product.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            onError={(e) => {
-                              (e.currentTarget as HTMLElement).style.display = 'none';
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center bg-[#FAFAF5]">
-                            <span className="text-5xl select-none">{emoji}</span>
-                            <span className="text-[11px] font-semibold text-stone-400 mt-2">
-                              {product.categoryName || 'Farm Produce'}
-                            </span>
-                          </div>
-                        )}
+                        <img
+                          src={`${API_BASE_URL}/products/${product.id}/image`}
+                          alt={product.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src = getCategoryPlaceholderImage(product.categoryName, product.categoryId);
+                          }}
+                        />
+
+                        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between bg-gradient-to-t from-stone-950/55 to-transparent px-3 pb-3 pt-10">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-[10px] font-bold text-stone-700 shadow-sm">
+                            <Camera className="h-3 w-3 text-[#2E7D32]" />
+                            Farm photo
+                          </span>
+                        </div>
 
                         {/* Stock status pill if low */}
                         {product.stock !== undefined && product.stock <= 5 && product.stock > 0 && (
@@ -329,6 +328,10 @@ export const CustomerHome: React.FC = () => {
                             {product.farmerLocation ? ` · ${product.farmerLocation}` : ''}
                           </span>
                         </div>
+
+                        <p className="text-xs leading-relaxed text-stone-500 line-clamp-2 min-h-8">
+                          {product.description || 'Freshly harvested from a local Tamil Nadu farm.'}
+                        </p>
 
                         {/* Price per kg */}
                         <div className="pt-1">

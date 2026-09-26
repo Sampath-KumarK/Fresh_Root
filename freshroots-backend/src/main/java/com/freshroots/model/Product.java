@@ -13,6 +13,10 @@ public class Product {
     private String unit;
     private Integer stock;
     private String imageUrl;
+    @Lob
+    @Column(columnDefinition="LONGBLOB")
+    private byte[] imageBytes;
+    private String imageType;
     @ManyToOne
     private Category category;
     @ManyToOne

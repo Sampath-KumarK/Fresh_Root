@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { api, getApiErrorMessage } from '../config/api';
+import { api, getApiErrorMessage, API_BASE_URL } from '../config/api';
 import { AdminStats, Product, AdminUser, CustomerOrder } from '../types';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
@@ -303,9 +303,9 @@ export const AdminDashboard: React.FC = () => {
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-lg bg-stone-100 border border-stone-200 overflow-hidden flex items-center justify-center shrink-0">
-                              {p.imageUrl ? (
+                              {p.id ? (
                                 <img
-                                  src={p.imageUrl}
+                                  src={`${API_BASE_URL}/products/${p.id}/image`}
                                   alt={p.name}
                                   className="w-full h-full object-cover"
                                   onError={(e) => {
