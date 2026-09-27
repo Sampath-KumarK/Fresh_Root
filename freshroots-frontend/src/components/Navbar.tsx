@@ -124,18 +124,20 @@ export const Navbar: React.FC<NavbarProps> = ({ searchQuery, onSearchChange }) =
           {/* Right Actions: Cart & Auth */}
           <div className="flex items-center gap-3">
             {/* Cart Button */}
-            <Link
-              to="/cart"
-              className="relative p-2.5 rounded-full text-stone-700 hover:text-[#2E7D32] hover:bg-[#E8F5E9] transition-colors flex items-center justify-center border border-stone-200"
-              aria-label="Shopping Cart"
-            >
-              <ShoppingCart className="w-5 h-5" />
-              {totalCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#F57C00] text-white text-[11px] font-bold rounded-full flex items-center justify-center shadow-xs">
-                  {totalCount > 99 ? '99+' : totalCount}
-                </span>
-              )}
-            </Link>
+            {user?.role !== 'FARMER' && (
+              <Link
+                to="/cart"
+                className="relative p-2.5 rounded-full text-stone-700 hover:text-[#2E7D32] hover:bg-[#E8F5E9] transition-colors flex items-center justify-center border border-stone-200"
+                aria-label="Shopping Cart"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                {totalCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#F57C00] text-white text-[11px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                    {totalCount > 99 ? '99+' : totalCount}
+                  </span>
+                )}
+              </Link>
+            )}
 
             {/* User Profile / Login Buttons */}
             {user ? (

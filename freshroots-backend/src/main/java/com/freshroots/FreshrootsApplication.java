@@ -5,6 +5,5 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class FreshrootsApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(FreshrootsApplication.class, args);
-		
 	}
 }

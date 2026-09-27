@@ -685,8 +685,8 @@ export const FarmerDashboard: React.FC = () => {
 
       {/* Add / Edit Product Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-stone-200">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/40 backdrop-blur-xs p-4">
+          <div className="my-auto max-h-[calc(100vh-2rem)] overflow-y-auto bg-white rounded-3xl max-w-lg w-full mx-auto p-6 shadow-2xl border border-stone-200">
             <div className="flex items-center justify-between pb-3 border-b border-stone-100">
               <h3 className="text-lg font-bold text-stone-900">
                 {editingProduct ? 'Edit Harvest Produce' : 'Add New Farm Produce'}
